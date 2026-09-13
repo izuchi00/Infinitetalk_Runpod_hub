@@ -116,6 +116,20 @@ find_wav2vec_directory() {
   return 1
 }
 
+prepare_wav2vec_direct_model_path() {
+  local source_dir="$1"
+  local target_dir="$COMFY_DIR/models/transformers/TencentGameMate/chinese-wav2vec2-base"
+
+  [[ -f "$source_dir/config.json" ]] || fatal "Bundled Wav2Vec directory has no config.json: $source_dir"
+
+  mkdir -p "$(dirname "$target_dir")"
+  rm -rf "$target_dir"
+  ln -s "$(readlink -f "$source_dir")" "$target_dir"
+
+  [[ -f "$target_dir/config.json" ]] || fatal "Failed to link bundled Wav2Vec model into ComfyUI transformers path."
+  log "Linked TencentGameMate/chinese-wav2vec2-base -> $target_dir"
+}
+
 prepare_wav2vec_hf_cache() {
   local source_dir="$1"
   local repo_root="$LOCAL_HF_HOME/hub/models--TencentGameMate--chinese-wav2vec2-base"
@@ -159,6 +173,7 @@ link_model 'clip_vision_h.safetensors' "$COMFY_DIR/models/clip_vision"
 WAV2VEC_DIR="$(find_wav2vec_directory || true)"
 [[ -n "$WAV2VEC_DIR" && -d "$WAV2VEC_DIR" ]] || \
   fatal "TencentGameMate/chinese-wav2vec2-base was not found inside the cached bundle."
+prepare_wav2vec_direct_model_path "$WAV2VEC_DIR"
 prepare_wav2vec_hf_cache "$WAV2VEC_DIR"
 
 log "All required InfiniteTalk assets are present."
