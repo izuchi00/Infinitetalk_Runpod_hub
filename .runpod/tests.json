@@ -1,0 +1,11 @@
+{
+  "tests": [
+    {
+      "name": "health_check",
+      "input": {
+        "operation": "health"
+      },
+      "timeout": 120000
+    }
+  ]
+}
